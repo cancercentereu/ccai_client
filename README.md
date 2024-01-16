@@ -8,8 +8,7 @@ pip install git+https://github.com/cancercentereu/python-client.git
 ## Example
 
 ```python
-from ccai_client import API
-import json
+from ccai_client import API, File
 
 organization = input('Enter organization codename: ')
 
