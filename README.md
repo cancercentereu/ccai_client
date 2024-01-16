@@ -21,4 +21,4 @@ print(file.name)
 ```
 
 ## How to use
-Please take a look at the `examples` folder. The notebook [working-with-slides.ipynb](/examples/working-with-slides.ipynb) shows how to use the library to download histopathology data.
+Please take a look at the `examples` folder. The notebook [working_with_slides.ipynb](/examples/working_with_slides.ipynb) shows how to use the library to download histopathology data.
