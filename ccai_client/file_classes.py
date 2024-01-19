@@ -17,6 +17,7 @@ from pydantic import ConfigDict
 from .patho import TiledMask, Marker, PointCloud
 from typing import Any
 from .core_classes import Comment
+from tqdm import tqdm
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
@@ -94,25 +95,30 @@ class PathologySlideNode(File):
     def dzi_file(self):
         return DZIFile(self.dzi_url, properties=asdict(self.slide_properties))
 
-    def download_original(self, path: str):
+    def download_original(self, path: str, verbose=True):
         data = self.api.query_graphql(query_pathologyslide_download, variables={
             'id': self.id
         })
         download_url = data['downloadUrl']
         r = requests.get(download_url, stream=True)
 
-        try:
-            file_name = r.headers['Content-Disposition'].split('filename=')[
-                1][1:-1]
-        except:
+        content_disposition = r.headers.get('Content-Disposition')
+        print('content-disposition', content_disposition)
+        if content_disposition and 'filename=' in content_disposition:
+            file_name = content_disposition.split('filename=')[1].strip('"')
+        else:
             file_name = os.path.split(download_url)[-1]
+            file_name = file_name.split('?', 1)[0]
 
         full_path = os.path.join(path, file_name)
         with open(full_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
+            total_length = int(r.headers.get('content-length'))
+            for chunk in tqdm(r.iter_content(chunk_size=8192), total=total_length/8192, unit='KB', desc=file_name, disable=not verbose):
                 f.write(chunk)
 
-        print("Downloaded file to {}".format(full_path))
+        if verbose:
+            print("Downloaded file to {}".format(full_path))
+        return full_path
 
     def get_dzi_pyramid(self) -> DZIPyramid:
         return DZIPyramid(self.dzi_file)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ccai-client"
-version = "0.1.2"
+version = "0.1.3"
 description = "Client library for the CancerCenter.ai platform"
 authors = ["Jarosław Kwiecień <jaroslaw.kwiecien@cancercenter.ai>"]
 readme = "README.md"
@@ -12,6 +12,7 @@ requests = "^2.31.0"
 dicomweb-client = "^0.59.1"
 histpat_toolkit = { git = "https://github.com/cancercentereu/histpat-toolkit.git" }
 pydantic = "^2.4.2"
+tqdm = "^4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.24.0"
