@@ -103,7 +103,6 @@ class PathologySlideNode(File):
         r = requests.get(download_url, stream=True)
 
         content_disposition = r.headers.get('Content-Disposition')
-        print('content-disposition', content_disposition)
         if content_disposition and 'filename=' in content_disposition:
             file_name = content_disposition.split('filename=')[1].strip('"')
         else:
