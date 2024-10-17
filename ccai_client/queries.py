@@ -81,12 +81,15 @@ fragment FileBasic on FileInterface {
 ''' + comments_fragment
 
 folder_fragment = '''fragment FileChildren on FileInterface {
-  childEdges{
+  children(
+    after: $after,
+    first: $page_size,
+    name_Istartswith: $search,
+    name_Icontains: $prefix_search
+  ) {
     edges {
       node {
-        child {
-          ...FileBasic
-        }
+        ...FileBasic
       }
     }
   }
@@ -103,11 +106,14 @@ query GetFile($id: ID!) {
 
 
 query_folder = '''
-query FileChildren($id: ID!) {
+query FileChildren(
+  $id: ID!, $after: String, $page_size: Int, 
+  $search: String, $prefix_search: String
+) {
   file(id: $id) {
-        ...FileBasic
-        ...FileChildren
-    }
+    ...FileBasic
+    ...FileChildren
+  }
 }
 ''' + folder_fragment
 

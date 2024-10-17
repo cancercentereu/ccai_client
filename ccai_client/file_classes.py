@@ -17,7 +17,6 @@ from pydantic import ConfigDict
 from .patho import TiledMask, Marker, PointCloud
 from typing import Any
 from .core_classes import Comment
-from tqdm import tqdm
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))
@@ -30,15 +29,16 @@ class File:
     created_at: datetime
     comments: list[Comment]
 
-
-    def children(self) -> list["File"]:
+    def children(self, search: str | None = None, prefix_search: str | None = None) -> list["File"]:
         objects = []
         folder_query = self.api.query_graphql(query_folder, variables={
-            'id': self.id
+            'id': self.id,
+            'search': search,
+            'prefix_search': prefix_search
         })
-        edges = folder_query['childEdges']['edges']
+        edges = folder_query['children']['edges']
         for edge in edges:
-            child = edge['node']['child']
+            child = edge['node']
             object = parse_graphql_file(child, self.api)
             objects.append(object)
         return objects
@@ -95,29 +95,25 @@ class PathologySlideNode(File):
     def dzi_file(self):
         return DZIFile(self.dzi_url, properties=asdict(self.slide_properties))
 
-    def download_original(self, path: str, verbose=True):
+    def download_original(self, path: str):
         data = self.api.query_graphql(query_pathologyslide_download, variables={
             'id': self.id
         })
         download_url = data['downloadUrl']
         r = requests.get(download_url, stream=True)
 
-        content_disposition = r.headers.get('Content-Disposition')
-        if content_disposition and 'filename=' in content_disposition:
-            file_name = content_disposition.split('filename=')[1].strip('"')
-        else:
+        try:
+            file_name = r.headers['Content-Disposition'].split('filename=')[
+                1][1:-1]
+        except:
             file_name = os.path.split(download_url)[-1]
-            file_name = file_name.split('?', 1)[0]
 
         full_path = os.path.join(path, file_name)
         with open(full_path, "wb") as f:
-            total_length = int(r.headers.get('content-length'))
-            for chunk in tqdm(r.iter_content(chunk_size=8192), total=total_length/8192, unit='KB', desc=file_name, disable=not verbose):
+            for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
 
-        if verbose:
-            print("Downloaded file to {}".format(full_path))
-        return full_path
+        print("Downloaded file to {}".format(full_path))
 
     def get_dzi_pyramid(self) -> DZIPyramid:
         return DZIPyramid(self.dzi_file)
@@ -130,17 +126,17 @@ class PathologySlideNode(File):
 class DicomStudyFile(File):
     access_token: str
     dicomweb_url: str
-    study_instance_uid: str
+    study_image_uid: str
 
     def download(self, path):
         client = DICOMwebClient(
             url=self.dicomweb_url,
             headers={"Authorization": "Bearer {}".format(self.access_token)})
         study = client.retrieve_study(
-            self.study_instance_uid
+            self.study_image_uid
         )
 
-        new_folder_path = path+self.study_instance_uid
+        new_folder_path = path+self.study_image_uid
         if not os.path.exists(new_folder_path):
             os.makedirs(new_folder_path)
         for image in study:
@@ -173,7 +169,7 @@ def parse_graphql_file(returnedJSON, api):
                                     created_at=returnedJSON['createdAt'],
                                     access_token=returnedJSON['study']['accessToken'],
                                     dicomweb_url=returnedJSON['study']['dicomwebUrl'],
-                                    study_instance_uid=returnedJSON['study']['studyInstanceUid'],
+                                    study_image_uid=returnedJSON['study']['studyimageUid'],
                                     comments=map(lambda edge: Comment.from_graphql(edge['node']), returnedJSON['discussion']['comments']['edges'])
                                     )
         case 'SimpleFileNode':

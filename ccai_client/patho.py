@@ -18,9 +18,7 @@ class Marker:
     comments: list[Comment]
 
     def as_rectangle(self, image_width: float) -> Rectangle:
-        cx = self.x + self.width / 2
-        cy = self.y + self.height / 2
-        return Rectangle.with_center(cx, cy, self.width, self.height, -self.rotation).scale(image_width)
+        return Rectangle(self.x, self.y, self.width, self.height, self.rotation).scale(image_width)
     
     @staticmethod
     def from_graphql(data):
