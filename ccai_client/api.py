@@ -1,5 +1,6 @@
 import requests
 from ccai_client.auth import authenticate
+import json
 
 
 class API:
@@ -17,7 +18,8 @@ class API:
 
         response.raise_for_status()
         responsein_json = response.json()
-        # TODO: check responsein_json['errors']
+        if responsein_json.get('errors'):
+            raise Exception('Request failed with errors: ' + json.dumps(responsein_json['errors'], indent=2))
 
         data = responsein_json["data"]
         return list(data.values())[0]
