@@ -14,10 +14,6 @@ histpat_toolkit = { git = "https://github.com/cancercentereu/histpat-toolkit.git
 pydantic = "^2.4.2"
 tqdm = "^4.0.0"
 
-[tool.poetry.group.dev.dependencies]
-ipykernel = "^6.24.0"
-matplotlib = "^3.7.2"
-
 [build-system]
 requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
