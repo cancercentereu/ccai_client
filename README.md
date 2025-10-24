@@ -2,7 +2,7 @@
 
 You can install this repository by
 ```
-pip install git+https://github.com/cancercentereu/python-client.git
+pip install git+https://github.com/cancercentereu/ccai_client.git
 ```
 
 ## Example
@@ -21,4 +21,4 @@ print(file.name)
 ```
 
 ## How to use
-Please take a look at the `examples` folder. The notebook [working_with_slides.ipynb](/examples/working_with_slides.ipynb) shows how to use the library to download histopathology data.
+Please take a look at the `notebooks` folder. The notebook [working_with_slides.ipynb](/notebooks/working_with_slides.ipynb) shows how to use the library to download histopathology data.

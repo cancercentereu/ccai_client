@@ -1,7 +1,6 @@
 import time
 
 import requests
-from requests.auth import _basic_auth_str
 
 
 def create_token(api_url: str, organization: str | None):

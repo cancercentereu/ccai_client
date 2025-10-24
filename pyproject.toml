@@ -1,19 +1,37 @@
 [tool.poetry]
 name = "ccai-client"
-version = "0.2.1"
+version = "0.5.0"
 description = "Client library for the CancerCenter.ai platform"
-authors = ["Jarosław Kwiecień <jaroslaw.kwiecien@cancercenter.ai>"]
+authors = ["Jarosław Kwiecień <kwiecienjaro@gmail.com>"]
 readme = "README.md"
 packages = [{include = "ccai_client"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-requests = "^2.31.0"
-dicomweb-client = "^0.59.1"
-histpat_toolkit = { git = "https://github.com/cancercentereu/histpat-toolkit.git" }
-pydantic = "^2.4.2"
-tqdm = "^4.0.0"
+python = ">=3.11"
+requests = ">=2.31.0"
+dicomweb-client = ">=0.59.1"
+histpat_toolkit = { git = "https://github.com/cancercentereu/histpat_toolkit.git" }
+pydantic = ">=2.4.2"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = ">=6.24.0"
+matplotlib = ">=3.7.2"
+pytest = "^8.1.1"
+pytest-cov = "^6.0.0"
+ruff = "^0.11.0"
+
+[tool.ruff]
+line-length = 120
+fix = true
+exclude = ["notebooks/*", "**/queries.py"]
+
+[tool.ruff.lint]
+select = ["F", "I", "E"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/__init__.py" = ["F401"]
+"**/queries.py" = ["E101"]
 
 [build-system]
-requires = ["poetry-core>=2.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
