@@ -634,7 +634,7 @@ tcod = ">=16.2.1"
 type = "git"
 url = "https://github.com/cancercentereu/histpat_toolkit.git"
 reference = "HEAD"
-resolved_reference = "ad09a34b60ad29807e200db4f4f62aaab3e1debd"
+resolved_reference = "160c10595539e76b277f35c138d5c976e6dbb4ae"
 
 [[package]]
 name = "idna"
