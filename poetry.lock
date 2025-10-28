@@ -613,7 +613,7 @@ unicode = ["unicodedata2 (>=15.1.0) ; python_version <= \"3.12\""]
 woff = ["brotli (>=1.0.1) ; platform_python_implementation == \"CPython\"", "brotlicffi (>=0.8.0) ; platform_python_implementation != \"CPython\"", "zopfli (>=0.1.4)"]
 
 [[package]]
-name = "histpat-toolkit"
+name = "histpat_toolkit"
 version = "0.5.1"
 description = "A set of tools to process and analyze histopathology scans"
 optional = false
