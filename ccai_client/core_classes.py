@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Any
 
+from pydantic.dataclasses import dataclass
+
 from ccai_client.api import API
 from ccai_client.queries import mutation_comment_create
-from pydantic.dataclasses import dataclass
 
 
 @dataclass

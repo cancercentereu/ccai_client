@@ -22,6 +22,21 @@ fragment Discussion on DiscussionNode {
 }
 """ + comment_fragment
 
+colormap_fragment = """
+fragment ColorMap on ColorMapNode {
+    name
+    colors {
+        edges {
+            node {
+                name
+                key
+                value
+            }
+        }
+    }
+}
+"""
+
 annotations_fragment = """
 fragment Annotations on AnnotationNode {
     id
@@ -66,6 +81,12 @@ fragment FileBasic on FileInterface {
     ... on PathologySlideNode {
         isReady
         thumbnailUrl
+        processingTask {
+            status
+            progress
+            errorMessage
+        }
+        
         dziUrl
         slideProperties {
             mpp
@@ -85,6 +106,17 @@ fragment FileBasic on FileInterface {
                     pointsList
                 }
             }
+        }
+        
+    }
+
+    ... on PathologySlideBaseNode {
+        isReady
+        thumbnailUrl
+        processingTask {
+            status
+            progress
+            errorMessage
         }
     }
 
@@ -180,6 +212,7 @@ fragment TiledMask on TiledMaskNode {
     algorithmRun {
         ...AlgorithmRun
     }
+    updatedAt
 }
 """ + color_map_fragment + algorithm_run_fragment
 
@@ -290,6 +323,18 @@ query GetTiledMaskTiles($id: ID!) {
 }
 """
 
+query_colormap_by_codename = """
+query GetColorMapByCodename($codename: String!) {
+    allColorMaps(codename: $codename) {
+        edges {
+            node {
+                ...ColorMap
+            }
+        }
+    }
+}
+""" + colormap_fragment
+
 mutation_import_annotations_from_geojson = """
 mutation ImportAnnotationsFromGeojson($id: ID!, $geojson: String!) {
     importAnnotationsFromGeojson(input: {
@@ -310,7 +355,7 @@ mutation ImportAnnotationsFromGeojson($id: ID!, $geojson: String!) {
 mutation_update_annotation = """
 mutation AnnotationUpdateMutation(
     $id: ID!,
-    $shapeData: [Float!],
+    $shapeData: [Int!],
     $color: ID,
     $label: String,
     $pointType: PointType,

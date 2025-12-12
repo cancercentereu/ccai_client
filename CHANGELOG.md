@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.2] - 2025-11-27
+
+- Added processing_task field to PathologySlide [CAP-2241]
+- Improved handling PathologySlideBase objects
+
+## [0.5.1] - 2025-11-13
+
+- add updatedAt field to TiledMask
+
 ## [0.5.0] - 2025-10-23
 
 - Added `PathologySlideNode.upload_tiled_mask` method to upload tiled masks from files using color map codename

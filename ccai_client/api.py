@@ -85,6 +85,6 @@ class API:
             organization_name = data["organization"]["name"]
             print(f"Authenticated as {user_name} in organization {organization_name}")
             return True
-        except Exception as e:
-            print(f"Token expired or invalid")
+        except Exception:
+            print("Token expired or invalid")
             return False

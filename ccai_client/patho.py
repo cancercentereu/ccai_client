@@ -14,6 +14,7 @@ from .queries import (
     mutation_update_annotation,
     query_all_algorithms,
     query_all_color_maps,
+    query_colormap_by_codename,
     query_tiledmask_tiles,
 )
 
@@ -62,7 +63,7 @@ class ShapeType(StrEnum):
 class Annotation(DiscussionMixin):
     id: str
     shape_type: ShapeType
-    shape_data: list[float]
+    shape_data: list[int]
     author: str | None
     slide_id: str
     number: int | None
@@ -202,6 +203,16 @@ class Color:
     key: int
     value: str
 
+    def as_rgba(self):
+        hex_value = self.value.lstrip("#")
+        # Handle both RGB (6 chars) and RGBA (8 chars) formats
+        if len(hex_value) == 6:
+            # RGB format - assume alpha = 255
+            return tuple(int(hex_value[i : i + 2], 16) for i in range(0, 6, 2)) + (255,)
+        else:
+            # RGBA format
+            return tuple(int(hex_value[i : i + 2], 16) for i in range(0, len(hex_value), 2))
+
 
 @dataclass
 class ColorMap:
@@ -232,6 +243,12 @@ class ColorMap:
                 return color_map
         raise ValueError(f"Color map with codename '{codename}' not found")
 
+    @staticmethod
+    def colormap_by_codename(api: API, codename: str):
+        data = api.query_graphql(query_colormap_by_codename, variables={"codename": codename})
+        assert len(data["edges"]) == 1, f"Expected one colormap with codename {codename}, got {len(data['edges'])}"
+        return ColorMap.from_graphql(data["edges"][0]["node"])
+
 
 @dataclass
 class TiledMask:
@@ -239,10 +256,10 @@ class TiledMask:
     author: str | None
     algorithm: RunAlgorithm | None
     color_map: ColorMap | None
+    updated_at: datetime
 
     @staticmethod
     def from_graphql(data):
-        print('data', data)
         return TiledMask(
             id=data["id"],
             author=data["author"]["name"] if data["author"] else None,
@@ -259,6 +276,7 @@ class TiledMask:
                 else None
             ),
             color_map=ColorMap.from_graphql(data["colorMap"]) if data["colorMap"] else None,
+            updated_at=data["updatedAt"],
         )
 
     def get_pyramid_info(self, api: API):

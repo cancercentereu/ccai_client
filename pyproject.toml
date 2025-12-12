@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "ccai-client"
-version = "0.5.0"
+version = "0.5.2"
 description = "Client library for the CancerCenter.ai platform"
-authors = ["Jarosław Kwiecień <kwiecienjaro@gmail.com>"]
+authors = ["Jarosław Kwiecień <jaroslaw.kwiecien@cancercenter.ai>"]
 readme = "README.md"
 packages = [{include = "ccai_client"}]
 

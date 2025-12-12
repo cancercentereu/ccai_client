@@ -18,7 +18,7 @@ from typing_extensions import deprecated
 from ccai_client.api import API
 
 from . import queries
-from .core_classes import Comment, Tag, DiscussionMixin
+from .core_classes import DiscussionMixin, Tag
 from .patho import Annotation, ColorMap, Marker, PointCloud, ShapeType, TiledMask
 
 
@@ -81,7 +81,7 @@ class File(DiscussionMixin):
             "offset": offset,
             "limit": limit,
             "type": ",".join(types) if types else None,
-            "tagsValue":  ",".join(tags) if tags else None,
+            "tagsValue": ",".join(tags) if tags else None,
         }
         data = self.api.query_graphql(queries.query_deep_search_files, variables=variables)
         edges = data["edges"]
@@ -190,23 +190,44 @@ class SimpleFileNode(File):
 
 
 @dataclass
+class ProcessingTask:
+    status: str
+    progress: float | None
+    error_message: str | None
+
+    @classmethod
+    def from_graphql(cls, data: dict | None) -> "ProcessingTask | None":
+        if data is None:
+            return None
+        return cls(
+            status=data["status"],
+            progress=data["progress"],
+            error_message=data["errorMessage"],
+        )
+
+
+@dataclass
 class PathologySlideNode(File):
     is_ready: bool
     thumbnail_url: str | None
     dzi_url: str | None
     slide_properties: SlideProperties | None
     point_clouds: list[PointCloud]
+    processing_task: ProcessingTask | None
 
     @classmethod
     def from_graphql(cls, data: dict, api: API) -> "PathologySlideNode":
         common_fields = cls._parse_common_fields(data, api)
         return cls(
             **common_fields,
-            is_ready=data["isReady"],
-            thumbnail_url=data["thumbnailUrl"],
-            dzi_url=data["dziUrl"],
-            slide_properties=data["slideProperties"],
-            point_clouds=[PointCloud.from_graphql(edge["node"]) for edge in data["pointClouds"]["edges"]],
+            is_ready=data.get("isReady", False),
+            thumbnail_url=data.get("thumbnailUrl"),
+            dzi_url=data.get("dziUrl"),
+            slide_properties=data.get("slideProperties"),
+            point_clouds=[
+                PointCloud.from_graphql(edge["node"]) for edge in data.get("pointClouds", {}).get("edges", [])
+            ],
+            processing_task=ProcessingTask.from_graphql(data["processingTask"]),
         )
 
     def list_tiled_masks(self):
